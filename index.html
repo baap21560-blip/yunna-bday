@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Yunna 🌸</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --accent: #ff6bf0; 
+            --glass: rgba(255, 255, 255, 0.03); 
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body { background: #050508; color: white; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; margin: 0; user-select: none; }
+        
+        canvas { display: block; position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+        .glass-card { 
+            background: var(--glass); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 2rem; 
+        }
+
+        .page { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; z-index: 10; }
+        .page.active { display: flex; }
+        
+        .btn-main { background: var(--accent); color: black; font-weight: 700; padding: 0.8rem 2rem; border-radius: 99px; transition: 0.3s; cursor: pointer; font-size: 14px; letter-spacing: 1px; }
+        .btn-main:hover { box-shadow: 0 0 20px var(--accent); transform: scale(1.05); }
+
+        /* Music Player Specifics */
+        .music-viewport { width: 100%; overflow: hidden; position: relative; height: 180px; display: flex; align-items: center; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
+        .music-wrapper { display: flex; align-items: center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); padding-left: calc(50% - 60px); }
+        .song-card { min-width: 120px; max-width: 120px; background: rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 10px; margin-right: 15px; transition: all 0.5s; opacity: 0.3; transform: scale(0.8); cursor: pointer; border: 1px solid transparent; }
+        .song-card.active { opacity: 1; transform: scale(1.1); border-color: var(--accent); box-shadow: 0 10px 20px rgba(255, 107, 240, 0.2); }
+        .song-card img { border-radius: 1rem; width: 100%; aspect-ratio: 1/1; object-fit: cover; margin-bottom: 8px; }
+        
+        .progress-container { height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 20px 0; cursor: pointer; position: relative; }
+        #music-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 10px; transition: width 0.1s linear; }
+
+        /* Memory Card Flip Styles */
+        .card-inner { transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; cursor: pointer; position: relative; width: 220px; height: 300px; }
+        .card-inner.flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 1.5rem; }
+        .card-back { transform: rotateY(180deg); background: var(--accent); color: black; padding: 1.5rem; text-align: center; font-weight: 600; }
+        
+        /* Memory Viewport Styles */
+        .memory-viewport { width: 100%; overflow-x: scroll; scroll-snap-type: x mandatory; display: flex; align-items: center; padding: 40px 0; mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); scroll-behavior: smooth; }
+        .memory-viewport::-webkit-scrollbar { display: none; }
+        .memory-item { min-width: 100%; display: flex; justify-content: center; scroll-snap-align: center; transition: 0.5s; transform: scale(0.85); opacity: 0.3; }
+        .memory-item.active { transform: scale(1); opacity: 1; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Gift Page Styles */
+        .gift-box { position: relative; width: 120px; height: 120px; cursor: pointer; transition: 0.5s; margin: 0 auto; }
+        .gift-lid { position: absolute; top: 0; left: 0; width: 100%; height: 30%; background: #ff4edc; border: 4px solid #fff; border-radius: 10px; z-index: 2; transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .gift-body { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; background: var(--accent); border: 4px solid #fff; border-radius: 5px; }
+        .gift-box.open .gift-lid { transform: translateY(-60px) rotate(-15deg); opacity: 0; }
+        .gift-reward { position: absolute; top: 20%; left: 50%; transform: translateX(-50%) scale(0); opacity: 0; transition: 0.8s; font-size: 5rem; filter: drop-shadow(0 0 20px var(--accent)); }
+        .gift-box.open + .gift-reward { transform: translateX(-50%) translateY(-100px) scale(1); opacity: 1; }
+
+        .footer { position: fixed; bottom: 15px; right: 20px; color: rgba(255, 255, 255, 0.2); font-size: 10px; letter-spacing: 2px; z-index: 100; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<canvas id="garden"></canvas>
+<audio id="audio-player"></audio>
+
+<div class="page active" id="p1">
+    <div class="glass-card p-10 text-center max-w-sm">
+        <h2 class="text-[#ff6bf0] tracking-[5px] text-[10px] uppercase mb-4">Vault Status: Locked</h2>
+        <h1 class="text-2xl font-bold mb-8">Yunna's Birthday Vault</h1>
+        <button onclick="showPage(2)" class="btn-main uppercase text-xs">Authorize Access 🔐</button>
+    </div>
+</div>
+
+<div class="page" id="p2">
+    <div class="glass-card p-10 text-center">
+        <h1 id="scan-text" class="text-xl mb-6 font-light tracking-widest">BIOMETRIC SCAN...</h1>
+        <div id="scan-icon" class="w-24 h-24 border border-[#ff6bf0]/30 rounded-full mx-auto mb-6 animate-pulse flex items-center justify-center text-3xl">🤳</div>
+        <p id="scan-sub" class="text-white/30 text-xs mb-8 tracking-tighter">Analyzing "Pagal" energy patterns...</p>
+        <div id="scan-feedback" class="text-[#ff6bf0] font-bold text-xs uppercase tracking-widest opacity-0">Identity Confirmed ✅</div>
+    </div>
+</div>
+
+<div class="page" id="p3">
+    <div class="glass-card p-10 text-center max-w-md w-full">
+        <h1 class="text-xl font-bold mb-6 text-[#ff6bf0]">Honesty Check</h1>
+        <p class="mb-8 opacity-70">kaun zada pagal ha?</p>
+        <div class="grid gap-4">
+            <button onclick="alert('Jhooth mat bol! Logic error 404.')" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">TU! ( avik )</button>
+            <button onclick="showPage(4)" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">mein 🤡 (tu!!)</button>
+        </div>
+    </div>
+</div>
+
+<div class="page" id="p4">
+    <div class="text-center w-full max-w-xs">
+        <h1 class="text-[#ff6bf0] mb-6 text-xs tracking-[4px] uppercase">Injecting Happiness...</h1>
+        <div class="h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+            <div id="bar" class="h-full bg-[#ff6bf0] w-0 shadow-[0_0_15px_#ff6bf0]"></div>
+        </div>
+        <p id="status" class="mt-6 text-[10px] text-white/40 uppercase tracking-widest font-bold">Compiling vibes...</p>
+    </div>
+</div>
+
+<div class="page" id="p5">
+    <div class="glass-card p-8 text-center w-full max-w-sm">
+        <p class="text-[9px] uppercase font-bold text-[#ff6bf0] tracking-[0.3em] mb-2">Dedicated Playlist</p>
+        <h1 id="current-song-title" class="text-lg font-bold mb-4 truncate">Select a Vibe</h1>
+
+        <div class="music-viewport" id="music-viewport">
+            <div class="music-wrapper" id="music-wrapper"></div>
+        </div>
+
+        <div class="progress-container" id="music-prog-cont">
+            <div id="music-bar"></div>
+        </div>
+
+        <div class="flex justify-between items-center px-4 mb-8">
+            <button onclick="prevSong()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#ff6bf0]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            <button id="play-pause-btn" onclick="togglePlay()" class="w-14 h-14 rounded-full bg-[#ff6bf0] text-black flex items-center justify-center shadow-lg">
+                <svg id="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button onclick="nextSong()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#ff6bf0]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg>
+            </button>
+        </div>
+
+        <button onclick="showPage(6)" class="btn-main w-full text-xs uppercase tracking-widest">Memories Await -> </button>
+    </div>
+</div>
+
+<div class="page" id="p6">
+    <div class="text-center w-full max-w-md">
+        <p class="text-[9px] uppercase font-bold text-[#ff6bf0] tracking-[0.3em] mb-4">Tap card to flip</p>
+        <div class="memory-viewport no-scrollbar" id="memory-viewport">
+            <div class="memory-item active">
+                <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                    <div class="card-front glass-card overflow-hidden">
+                        <img src="https://i.pinimg.com/736x/87/0c/36/870c3672013898132338ec717540263c.jpg" class="w-full h-full object-cover">
+                    </div>
+                    <div class="card-back">You are the most annoying yet favorite person ever! 🤝</div>
+                </div>
+            </div>
+            <div class="memory-item">
+                <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                    <div class="card-front glass-card overflow-hidden">
+                        <img src="https://i.pinimg.com/736x/2c/8d/6f/2c8d6f51950c40e53a23f173ad820063.jpg" class="w-full h-full object-cover">
+                    </div>
+                    <div class="card-back">"Pagal" energy is at an all-time high today. ⚡</div>
+                </div>
+            </div>
+            <div class="memory-item">
+                <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                    <div class="card-front glass-card overflow-hidden">
+                        <img src="https://i.pinimg.com/736x/21/53/56/215356976214151a668043003006d64d.jpg" class="w-full h-full object-cover">
+                    </div>
+                    <div class="card-back">The Biryani Queen deserves the best day! 👑</div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-center gap-10 mt-6">
+            <button onclick="navMemory(-1)" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff6bf0]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button onclick="navMemory(1)" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff6bf0]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+        </div>
+        <button onclick="showPage(7)" class="mt-12 text-[10px] uppercase tracking-[3px] text-white/30 hover:text-[#ff6bf0] transition-colors">Final Step -></button>
+    </div>
+</div>
+
+<div class="page" id="p7">
+    <div class="glass-card p-10 text-center">
+        <h1 class="text-xl mb-10 font-light">Final authorization required. <br><span class="text-[#ff6bf0] font-bold">Ready?</span></h1>
+        <div class="flex gap-6 justify-center">
+            <button onclick="showPage(8)" class="btn-main">YES</button>
+            <button onmouseover="moveBtn(this)" class="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-xs">NO</button>
+        </div>
+    </div>
+</div>
+
+<div class="page" id="p8">
+    <div class="glass-card p-6 text-center pointer-events-none mb-10 border-[#ff6bf0]/20">
+        <h1 class="text-xs tracking-[4px] uppercase text-white/60 mb-2">The Garden of Yunna</h1>
+        <p id="fcount" class="text-[#ff6bf0] text-lg font-bold">Click to grow: 0 / 10</p>
+    </div>
+    <div class="flex gap-4 pointer-events-auto">
+        <button class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] tracking-widest uppercase hover:bg-[#ff6bf0] hover:text-black transition" onclick="clearGarden()">Reset</button>
+        <button id="autoToggle" class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] tracking-widest uppercase hover:bg-[#ff6bf0] hover:text-black transition" onclick="toggleAuto()">Auto-Bloom</button>
+    </div>
+</div>
+
+<div class="page" id="p9">
+    <div class="text-center">
+        <h1 class="font-['Dancing_Script'] text-7xl text-[#ff6bf0] mb-8 drop-shadow-[0_0_20px_#ff6bf066]">Happy Birthday Yunna!</h1>
+        <div class="glass-card p-10 max-w-sm mx-auto mb-8">
+            <p class="italic text-lg text-white/80">"Life is better with a Pagal like you. Keep glowing always."</p>
+            <div class="mt-8 flex justify-center gap-3">
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase font-bold text-[#ff6bf0]">👑 Biryani Queen</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase font-bold text-[#ff6bf0]">🤡 Certified</span>
+            </div>
+        </div>
+        <button onclick="showPage(10)" class="btn-main uppercase text-[10px]">Collect Birthday Gift 🎁</button>
+    </div>
+</div>
+
+<div class="page" id="p10">
+    <div class="text-center">
+        <h1 class="text-[#ff6bf0] text-xs tracking-[5px] uppercase mb-12">One Last Thing...</h1>
+        <div class="relative">
+            <div id="gift-box" class="gift-box" onclick="this.classList.toggle('open')">
+                <div class="gift-lid"></div>
+                <div class="gift-body"></div>
+            </div>
+            <div class="gift-reward">🌸</div>
+        </div>
+        <p class="mt-20 text-white/40 text-[10px] uppercase tracking-widest">You are the real gift. <br> Have a great year ahead!</p>
+    </div>
+</div>
+
+<div class="footer">MADE FOR YUNNA 🌸 ✨ <span>|</span> DEV - MURPHX</div>
+
+<script>
+    // --- MEMORY PAGE NAV LOGIC ---
+    let currentMemIndex = 0;
+    const memoryViewport = document.getElementById('memory-viewport');
+    
+    function navMemory(dir) {
+        const items = document.querySelectorAll('.memory-item');
+        currentMemIndex = Math.max(0, Math.min(items.length - 1, currentMemIndex + dir));
+        updateCardFocus();
+        const scrollAmount = currentMemIndex * memoryViewport.offsetWidth;
+        memoryViewport.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    function updateCardFocus() {
+        const items = document.querySelectorAll('.memory-item');
+        items.forEach((item, i) => {
+            item.classList.toggle('active', i === currentMemIndex);
+        });
+    }
+
+    // Debounced scroll listener for manual swiping
+    memoryViewport.addEventListener('scroll', () => {
+        const scrollX = memoryViewport.scrollLeft;
+        const width = memoryViewport.offsetWidth;
+        const newIndex = Math.round(scrollX / width);
+        if (newIndex !== currentMemIndex) {
+            currentMemIndex = newIndex;
+            updateCardFocus();
+        }
+    });
+
+    // --- MUSIC DATA ---
+    const playlist = [
+        { title: 'Mockingbird', src: 'music1.mp3', img: 'https://i.pinimg.com/736x/2f/28/74/2f2874cb89259481d7d5c5fe672b6990.jpg' },
+        { title: 'The Perfect Pair', src: 'music2.mp3', img: 'https://i.pinimg.com/736x/f1/d2/74/f1d274478e433beb92dfaf619ba9904f.jpg' },
+        { title: 'Ocean Eyes', src: 'music3.mp3', img: 'https://i.pinimg.com/1200x/7d/56/36/7d5636ffb3b2057617187eb81d2487bf.jpg' }
+    ];
+
+    let currentSongIndex = 0;
+    const audio = document.getElementById('audio-player');
+    const musicWrapper = document.getElementById('music-wrapper');
+
+    function initMusic() {
+        musicWrapper.innerHTML = playlist.map((song, i) => `
+            <div class="song-card" onclick="selectSong(${i})">
+                <img src="${song.img}">
+                <p class="text-[10px] font-bold text-white/60 truncate text-center">${song.title}</p>
+            </div>
+        `).join('');
+        updateMusicUI();
+    }
+
+    function updateMusicUI() {
+        const cards = document.querySelectorAll('.song-card');
+        cards.forEach((card, i) => card.classList.toggle('active', i === currentSongIndex));
+        const offset = currentSongIndex * 135; 
+        musicWrapper.style.transform = `translateX(-${offset}px)`;
+        document.getElementById('current-song-title').innerText = playlist[currentSongIndex].title;
+    }
+
+    function selectSong(i) {
+        currentSongIndex = i;
+        audio.src = playlist[currentSongIndex].src;
+        updateMusicUI();
+        audio.play();
+        document.getElementById('play-icon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+    }
+
+    function togglePlay() {
+        if (audio.paused) {
+            if (!audio.src) audio.src = playlist[currentSongIndex].src;
+            audio.play();
+            document.getElementById('play-icon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        } else {
+            audio.pause();
+            document.getElementById('play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>';
+        }
+    }
+
+    function nextSong() { currentSongIndex = (currentSongIndex + 1) % playlist.length; selectSong(currentSongIndex); }
+    function prevSong() { currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; selectSong(currentSongIndex); }
+
+    audio.ontimeupdate = () => {
+        if(audio.duration) document.getElementById('music-bar').style.width = (audio.currentTime / audio.duration) * 100 + '%';
+    };
+
+    // --- GARDEN LOGIC ---
+    const canvas = document.getElementById('garden');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let flowers = [], particles = [], isAuto = false, autoInterval, time = 0, flowerCount = 0;
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    class Flower {
+        constructor(x, y) {
+            this.x = x; this.targetY = y; this.stemHeight = 0; this.maxStemHeight = canvas.height - y;
+            const palettes = [{ h: 320, s: 90, l: 60 }, { h: 270, s: 85, l: 65 }, { h: 190, s: 90, l: 60 }, { h: 45, s: 100, l: 60 }];
+            this.palette = palettes[Math.floor(Math.random() * palettes.length)];
+            this.z = Math.random() * 0.5 + 0.5; this.petalCount = Math.floor(Math.random() * 3) + 6;
+            this.swaySpeed = (Math.random() * 0.02 + 0.01) * (this.z * 0.5); this.swayOffset = Math.random() * Math.PI * 2;
+            this.curveDir = (Math.random() - 0.5) * 150; this.bloomScale = 0;
+        }
+        draw() {
+            const sway = Math.sin(time * this.swaySpeed + this.swayOffset) * (20 * this.z);
+            const progress = this.stemHeight / this.maxStemHeight;
+            const currentX = this.x + (sway * progress);
+            const headY = canvas.height - this.stemHeight;
+            ctx.beginPath(); ctx.moveTo(this.x, canvas.height); ctx.quadraticCurveTo(this.x + (this.curveDir * progress), canvas.height - (this.stemHeight * 0.5), currentX, headY);
+            ctx.strokeStyle = `hsla(150, 40%, 30%, ${0.3 * this.z})`; ctx.lineWidth = 2 * this.z; ctx.stroke();
+            if (this.stemHeight < this.maxStemHeight) this.stemHeight += (this.maxStemHeight - this.stemHeight) * 0.05 + 0.2;
+            else { this.drawBloom(currentX, headY, sway); if (this.bloomScale < 1) this.bloomScale += 0.03; }
+        }
+        drawBloom(x, y, sway) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(sway * 0.01); ctx.scale(this.bloomScale * this.z, this.bloomScale * this.z);
+            for (let i = 0; i < this.petalCount; i++) {
+                ctx.save(); ctx.rotate((Math.PI * 2 / this.petalCount) * i);
+                ctx.fillStyle = `hsla(${this.palette.h}, ${this.palette.s}%, ${this.palette.l}%, 0.15)`;
+                ctx.shadowBlur = 15; ctx.shadowColor = `hsla(${this.palette.h}, ${this.palette.s}%, ${this.palette.l}%, 0.8)`;
+                ctx.beginPath(); ctx.ellipse(0, -15, 10, 22, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            }
+            ctx.restore();
+            if (Math.random() > 0.98) particles.push(new Particle(x, y, this.palette.h));
+        }
+    }
+
+    class Particle {
+        constructor(x, y, hue) {
+            this.x = x; this.y = y; this.hue = hue;
+            this.vx = (Math.random() - 0.5); this.vy = Math.random() * -1 - 0.5;
+            this.alpha = 1; this.life = Math.random() * 0.01 + 0.005;
+        }
+        update() { this.x += this.vx; this.y += this.vy; this.alpha -= this.life; }
+        draw() { ctx.fillStyle = `hsla(${this.hue}, 100%, 80%, ${this.alpha})`; ctx.fillRect(this.x, this.y, 1.5, 1.5); }
+    }
+
+    function animate() {
+        time++; ctx.fillStyle = 'rgba(5, 5, 8, 0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        flowers.sort((a, b) => a.z - b.z); flowers.forEach(f => f.draw());
+        for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); if (particles[i].alpha <= 0) particles.splice(i, 1); else particles[i].draw(); }
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    function showPage(n) {
+        const activePage = document.querySelector('.page.active');
+        const nextPage = document.getElementById('p' + n);
+        gsap.to(activePage, { opacity: 0, scale: 0.9, duration: 0.7, onComplete: () => {
+            activePage.classList.remove('active');
+            nextPage.classList.add('active');
+            gsap.fromTo(nextPage, { opacity: 0, scale: 1.1 }, { opacity: 1, scale: 1, duration: 0.7 });
+            
+            if(n === 2) autoBiometric();
+            if(n === 4) startScan();
+            if(n === 5) initMusic(); 
+            canvas.style.pointerEvents = (n === 8) ? 'all' : 'none';
+        }});
+    }
+
+    function autoBiometric() {
+        gsap.to("#scan-icon", { scale: 1.3, duration: 0.4, repeat: 7, yoyo: true, ease: "power1.inOut" });
+        setTimeout(() => {
+            document.getElementById('scan-text').innerText = "VERIFYING BIOMETRICS...";
+            gsap.to("#scan-feedback", { opacity: 1, duration: 0.5 });
+        }, 2000);
+        setTimeout(() => showPage(3), 4000);
+    }
+
+    function startScan() {
+        gsap.to("#bar", { width: "100%", duration: 5, ease: "power1.inOut", onUpdate: function() {
+            const progress = Math.round(this.progress() * 100);
+            const statusMsg = progress < 35 ? "Compiling vibes..." : progress < 75 ? "Injecting happiness..." : "Finalizing assets...";
+            document.getElementById('status').innerText = `${statusMsg} ${progress}%`;
+        }, onComplete: () => showPage(5) });
+    }
+
+    function moveBtn(btn) {
+        btn.style.position = 'absolute';
+        btn.style.left = Math.random() * 70 + 15 + '%'; btn.style.top = Math.random() * 70 + 15 + '%';
+    }
+
+    window.addEventListener('mousedown', (e) => {
+        if (document.querySelector('.page.active').id === 'p8') {
+            flowers.push(new Flower(e.clientX, e.clientY));
+            flowerCount++;
+            document.getElementById('fcount').innerText = `Click to grow: ${flowerCount} / 10`;
+            if(flowerCount === 10) setTimeout(() => showPage(9), 4000);
+        }
+    });
+
+    function clearGarden() { flowers = []; flowerCount = 0; document.getElementById('fcount').innerText = "Click to grow: 0 / 10"; }
+    
+    function toggleAuto() {
+        isAuto = !isAuto;
+        const btn = document.getElementById('autoToggle');
+        if (isAuto) {
+            btn.style.background = "var(--accent)"; btn.style.color = "black";
+            autoInterval = setInterval(() => {
+                flowers.push(new Flower(Math.random() * canvas.width, Math.random() * canvas.height * 0.7 + 100));
+                flowerCount++;
+                document.getElementById('fcount').innerText = `Click to grow: ${flowerCount} / 10`;
+                if(flowerCount >= 10) { clearInterval(autoInterval); setTimeout(() => showPage(9), 4000); }
+            }, 800);
+        } else {
+            btn.style.background = "rgba(255,255,255,0.05)"; btn.style.color = "white";
+            clearInterval(autoInterval);
+        }
+    }
+</script>
+</body>
+</html>
