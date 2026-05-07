@@ -59,11 +59,12 @@
             justify-content: center;
         }
         
-        .memory-viewport { width: 100%; overflow-x: scroll; scroll-snap-type: x mandatory; display: flex; align-items: center; padding: 40px 0; mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); scroll-behavior: smooth; cursor: grab; }
-        .memory-viewport:active { cursor: grabbing; }
-        .memory-viewport::-webkit-scrollbar { display: none; }
-        .memory-item { min-width: 100%; display: flex; justify-content: center; scroll-snap-align: center; transition: 0.5s; transform: scale(0.85); opacity: 0.3; }
+        .memory-viewport { width: 100%; overflow: hidden; display: flex; align-items: center; padding: 40px 0; mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); scroll-behavior: smooth; }
+        .memory-item { min-width: 100%; display: flex; justify-content: center; transition: 0.5s; transform: scale(0.85); opacity: 0.3; }
         .memory-item.active { transform: scale(1); opacity: 1; }
+
+        .nav-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--accent); transition: 0.3s; }
+        .nav-btn:hover { background: var(--accent); color: black; box-shadow: 0 0 15px var(--accent); }
 
         .gift-box { position: relative; width: 120px; height: 120px; cursor: pointer; transition: 0.5s; margin: 0 auto; }
         .gift-lid { position: absolute; top: 0; left: 0; width: 100%; height: 30%; background: #ff4edc; border: 4px solid #fff; border-radius: 10px; z-index: 2; transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -71,6 +72,16 @@
         .gift-box.open .gift-lid { transform: translateY(-60px) rotate(-15deg); opacity: 0; }
         .gift-reward { position: absolute; top: 20%; left: 50%; transform: translateX(-50%) scale(0); opacity: 0; transition: 0.8s; font-size: 5rem; filter: drop-shadow(0 0 20px var(--accent)); }
         .gift-box.open + .gift-reward { transform: translateX(-50%) translateY(-100px) scale(0.50); opacity: 1; }
+
+        .glitch-text { animation: glitch 0.3s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: -2px 0 red, 2px 0 blue; }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); text-shadow: 2px 0 red, -2px 0 blue; }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
 
         .footer { position: fixed; bottom: 15px; right: 20px; color: rgba(255, 255, 255, 0.2); font-size: 10px; letter-spacing: 2px; z-index: 100; pointer-events: none; }
     </style>
@@ -80,11 +91,11 @@
 <canvas id="garden"></canvas>
 <audio id="audio-player"></audio>
 
-
+<!-- P1: Music -->
 <div class="page active" id="p1">
     <div class="glass-card p-8 text-center w-full max-w-sm">
-        <p class="text-[9px] uppercase font-bold text-[#ff6bf0] tracking-[0.3em] mb-2">Select the Birthday Vibe</p>
-        <h1 id="current-song-title" class="text-lg font-bold mb-4 truncate">Select a Vibe</h1>
+        <p class="text-[9px] uppercase font-bold text-[#ff6bf0] tracking-[0.3em] mb-2">Birthday Vibe Select Kar </p>
+        <h1 id="current-song-title" class="text-lg font-bold mb-4 truncate">Gaana Choose kr</h1>
         <div class="music-viewport" id="music-viewport">
             <div class="music-wrapper" id="music-wrapper"></div>
         </div>
@@ -102,103 +113,176 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg>
             </button>
         </div>
-        <button onclick="startJourney()" class="btn-main w-full text-xs uppercase tracking-widest">Authorize Access 🔐</button>
+        <button onclick="startJourney()" class="btn-main w-full text-xs uppercase tracking-widest">Entry Maaro 🙇‍♂️</button>
     </div>
 </div>
 
-
+<!-- P2: Scan -->
 <div class="page" id="p2">
     <div class="glass-card p-10 text-center">
-        <h1 id="scan-text" class="text-xl mb-6 font-light tracking-widest">BIOMETRIC SCAN...</h1>
+        <h1 id="scan-text" class="text-xl mb-6 font-light tracking-widest">BIOMETRIC SCAN CHAL RAHA HAI...</h1>
         <div id="scan-icon" class="w-24 h-24 border border-[#ff6bf0]/30 rounded-full mx-auto mb-6 animate-pulse flex items-center justify-center text-3xl">🤳</div>
-        <p id="scan-sub" class="text-white/30 text-xs mb-8 tracking-tighter">Analyzing "Pagal" energy patterns...</p>
-        <div id="scan-feedback" class="text-[#ff6bf0] font-bold text-xs uppercase tracking-widest opacity-0">Identity Confirmed ✅</div>
+        <p id="scan-sub" class="text-white/30 text-xs mb-8 tracking-tighter">"Pagal" energy detect ho rahi hai...</p>
+        <div id="scan-feedback" class="text-[#ff6bf0] font-bold text-xs uppercase tracking-widest opacity-0">Identity Confirm Ho Gayi ✅</div>
     </div>
 </div>
 
-
+<!-- P3: Honesty -->
 <div class="page" id="p3">
     <div class="glass-card p-10 text-center max-w-md w-full">
-        <h1 class="text-xl font-bold mb-6 text-[#ff6bf0]">Honesty Check</h1>
-        <p class="mb-8 opacity-70">kaun zada pagal ha?</p>
+        <h1 class="text-xl font-bold mb-6 text-[#ff6bf0]">Sach Sach Batana</h1>
+        <p class="mb-8 opacity-70">Hum dono mein se kaun zyada pagal hai? 🤡</p>
         <div class="grid gap-4">
-            <button onclick="alert('Jhooth mat bol! Logic error 404.')" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">TU! ( avik )</button>
-            <button onclick="alert('yh b galat h!! Logic error 404.')" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">mein 🤡 (tu!!)</button>
-            <button onclick="showPage(4)" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">dono hi pagal h 🤡</button>
+            <button onclick="alert('Jhooth mat bol! Logic error 404.')" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">TU! ( Murphx )</button>
+            <button onclick="alert('Arre bilkul nahi!! Logic error 404.')" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">Main 🤡 (Yunna!!)</button>
+            <button onclick="showPage(4)" class="p-4 bg-white/5 rounded-2xl hover:border-[#ff6bf0] border border-transparent transition text-sm">Dono hi pagal hain 🤡</button>
         </div>
     </div>
 </div>
 
-
+<!-- P4: Loading -->
 <div class="page" id="p4">
     <div class="text-center w-full max-w-xs">
-        <h1 class="text-[#ff6bf0] mb-6 text-xs tracking-[4px] uppercase">Injecting Happiness...</h1>
+        <h1 class="text-[#ff6bf0] mb-6 text-xs tracking-[4px] uppercase">Khushiya Load Ho Rahi Hain...</h1>
         <div class="h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
             <div id="bar" class="h-full bg-[#ff6bf0] w-0 shadow-[0_0_15px_#ff6bf0]"></div>
         </div>
-        <p id="status" class="mt-6 text-[10px] text-white/40 uppercase tracking-widest font-bold">Compiling vibes...</p>
+        <p id="status" class="mt-6 text-[10px] text-white/40 uppercase tracking-widest font-bold">Vibes compile ho rahi hain...</p>
     </div>
 </div>
 
-
+<!-- P5: Memories -->
 <div class="page" id="p5">
     <div class="text-center w-full max-w-md">
-        <p class="text-[10px] uppercase font-bold text-[#ff6bf0] tracking-[0.4em] mb-2 animate-pulse">Swipe Left/Right </p>
-        <p class="text-[9px] uppercase text-white/40 mb-4 tracking-[0.2em]">Tap card to flip</p>
+        <p class="text-[10px] uppercase font-bold text-[#ff6bf0] tracking-[0.4em] mb-2 animate-pulse">Swipe Ya Buttons Use Karo</p>
+        <p class="text-[9px] uppercase text-white/40 mb-4 tracking-[0.2em]">Card pe tap karke flip hota h</p>
         
-        <div class="memory-viewport" id="memory-viewport">
-            <div class="memory-item active">
-                <div class="card-inner" onclick="this.classList.toggle('flipped')">
-                    <div class="card-front glass-card overflow-hidden"><img src="image1.jpeg" class="w-full h-full object-cover"></div>
-                    <div class="card-back">Happy Birthday 🎉 <br> Aaj kr le enjoy 😌</div>
+        <div class="relative flex items-center justify-center">
+            <!-- Navigation Buttons -->
+            <button onclick="prevMem()" class="nav-btn absolute left-0 z-20">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            
+            <div class="memory-viewport" id="memory-viewport">
+                <div class="memory-item active">
+                    <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                        <div class="card-front glass-card overflow-hidden"><img src="image1.jpeg" class="w-full h-full object-cover"></div>
+                        <div class="card-back">Happy Birthday 🎉 <br> Aj khale diet bhul ja 😌</div>
+                    </div>
+                </div>
+                <div class="memory-item">
+                    <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                        <div class="card-front glass-card overflow-hidden"><img src="image2.jpeg" class="w-full h-full object-cover"></div>
+                        <div class="card-back">tu thodi pagal hai 🤡</div>
+                    </div>
+                </div>
+                <div class="memory-item">
+                    <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                        <div class="card-front glass-card overflow-hidden"><img src="image3.jpeg" class="w-full h-full object-cover"></div>
+                        <div class="card-back">lakin wahi best hai 😌</div>
+                    </div>
+                </div>
+                <div class="memory-item">
+                    <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                        <div class="card-front glass-card overflow-hidden"><img src="image4.jpeg" class="w-full h-full object-cover"></div>
+                        <div class="card-back">thodi pagal thodi funny 😌</div>
+                    </div>
+                </div>
+                <div class="memory-item">
+                    <div class="card-inner" onclick="this.classList.toggle('flipped')">
+                        <div class="card-front glass-card overflow-hidden"><img src="image5.jpeg" class="w-full h-full object-cover"></div>
+                        <div class="card-back">Zyada serious mat ho mazaak tha 🤡</div>
+                    </div>
                 </div>
             </div>
-            <div class="memory-item">
-                <div class="card-inner" onclick="this.classList.toggle('flipped')">
-                    <div class="card-front glass-card overflow-hidden"><img src="image2.jpeg" class="w-full h-full object-cover"></div>
-                    <div class="card-back">Tu thodi si pagal hai 🤡</div>
-                </div>
-            </div>
-            <div class="memory-item">
-                <div class="card-inner" onclick="this.classList.toggle('flipped')">
-                    <div class="card-front glass-card overflow-hidden"><img src="image3.jpeg" class="w-full h-full object-cover"></div>
-                    <div class="card-back">but honestly wahi best part hai 😌</div>
-                </div>
-            </div>
-            <div class="memory-item">
-                <div class="card-inner" onclick="this.classList.toggle('flipped')">
-                    <div class="card-front glass-card overflow-hidden"><img src="image4.jpeg" class="w-full h-full object-cover"></div>
-                    <div class="card-back">Stay same, thodi si pagal, thodi si funny 😌</div>
-                </div>
-            </div>
-            <div class="memory-item">
-                <div class="card-inner" onclick="this.classList.toggle('flipped')">
-                    <div class="card-front glass-card overflow-hidden"><img src="image5.jpeg" class="w-full h-full object-cover"></div>
-                    <div class="card-back">Zyada serious mat ho mazak tha 🤡</div>
-                </div>
-            </div>
+
+            <button onclick="nextMem()" class="nav-btn absolute right-0 z-20">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
         </div>
 
-        <button onclick="showPage(6)" class="mt-12 text-[10px] uppercase tracking-[3px] text-white/30 hover:text-[#ff6bf0] transition-colors">Final Step -></button>
+        <button onclick="showPage('51')" class="mt-12 text-[10px] uppercase tracking-[3px] text-white/30 hover:text-[#ff6bf0] transition-colors">AI Analysis Start Karo -></button>
     </div>
 </div>
 
+<!-- P5.1: AI Analysis -->
+<div class="page" id="p51">
+    <div class="glass-card p-10 text-center max-w-sm">
+        <h2 class="text-xs tracking-[5px] text-[#ff6bf0] mb-6 uppercase">Dimag Ki Scanning...</h2>
+        <div class="space-y-4 text-left font-mono text-[10px]">
+            <p id="ai-line-1" class="opacity-0">> Brain cells dhund rahe hain... <span class="text-red-500">Nahi Mile</span></p>
+            <p id="ai-line-2" class="opacity-0">> Roast level check... <span class="text-green-500">100% Khatarnaak</span></p>
+            <p id="ai-line-3" class="opacity-0">> Cuteness analyze ho rahi hai... <span class="text-[#ff6bf0]">Error:</span></p>
+            <p id="ai-line-4" class="opacity-0">> Final Result: <span class="bg-[#ff6bf0] text-black px-1">CERTIFIED ROASTER</span></p>
+        </div>
+        <button onclick="showPage('52')" class="btn-main mt-10 w-full text-[10px]">Logs Dekho</button>
+    </div>
+</div>
 
+<!-- P5.2: Fake Chat -->
+<div class="page" id="p52">
+    <div class="w-full max-w-xs space-y-4">
+        <div class="chat-bubble opacity-0 bg-white/10 p-3 rounded-2xl rounded-bl-none text-xs w-3/4">Murphx: Yo, kya yeh sach hai ki tu aaj ek saal aur budhi ho gayi?</div>
+        <div class="chat-bubble opacity-0 bg-[#ff6bf0] text-black p-3 rounded-2xl rounded-br-none text-xs w-3/4 ml-auto">Yunna: Chup kar! Main hamesha young hoon 💅</div>
+        <div class="chat-bubble opacity-0 bg-white/10 p-3 rounded-2xl rounded-bl-none text-xs w-3/4">Murphx: Hamesha pagal* correction kar le</div>
+        <button onclick="showPage('53')" class="btn-main w-full mt-6 text-[10px]">Aage Chalo: Dreamscape</button>
+    </div>
+</div>
+
+<!-- P5.3: Dream Sequence -->
+<div class="page" id="p53">
+    <div class="text-center">
+        <h1 class="text-4xl font-['Dancing_Script'] text-white/50 mb-8 animate-pulse">Sapne Dekh Rahi Hai...</h1>
+        <div class="flex gap-4 justify-center items-center">
+            <div class="dream-item opacity-0 transform translate-y-10 text-4xl">🍕</div>
+            <div class="dream-item opacity-0 transform translate-y-10 text-6xl">😴</div>
+            <div class="dream-item opacity-0 transform translate-y-10 text-4xl">🐱</div>
+        </div>
+        <p class="mt-8 text-xs tracking-widest text-white/30 uppercase">Unlimited neend aur snacks unlock ho gaye!</p>
+        <button onclick="showPage('54')" class="mt-12 text-[9px] uppercase tracking-[4px] border-b border-white/20">Asliyat Mein Aao -></button>
+    </div>
+</div>
+
+<!-- P5.4: Mission Page -->
+<div class="page" id="p54">
+    <div class="glass-card p-10 border-[#ff6bf0]/40">
+        <h2 class="text-xs tracking-[6px] text-[#ff6bf0] mb-6 uppercase text-center">Naya Mission Mila Hai</h2>
+        <ul class="text-[11px] space-y-4 font-bold">
+            <li class="flex items-center gap-3"> <span class="text-[#ff6bf0]">✔</span> HAMESHA KHUSH REHNA</li>
+            <li class="flex items-center gap-3"> <span class="text-[#ff6bf0]">✔</span> MUJHE ROAST KARNA MAT CHODNA</li>
+            <li class="flex items-center gap-3"> <span class="text-[#ff6bf0]">✔</span> APNE BEST VERSION MEIN REHNA</li>
+        </ul>
+        <button onclick="showPage('55')" class="btn-main mt-8 w-full uppercase text-[10px]">Mission Accept Karo</button>
+    </div>
+</div>
+
+<!-- P5.5: Glitch Message -->
+<div class="page" id="p55">
+    <div class="text-center">
+        <h1 class="glitch-text text-5xl font-black italic tracking-tighter">ERROR_404</h1>
+        <p class="text-[#ff6bf0] font-mono text-[10px] mt-4">Zyada vibe ho gayi. System crash ho raha hai...</p>
+        <div id="glitch-bar" class="w-48 h-1 bg-white/10 mx-auto mt-6 overflow-hidden">
+            <div class="h-full bg-white w-0" id="glitch-progress"></div>
+        </div>
+    </div>
+</div>
+
+<!-- P6: Ready? -->
 <div class="page" id="p6">
     <div class="glass-card p-10 text-center">
-        <h1 class="text-xl mb-10 font-light">Final authorization required. <br><span class="text-[#ff6bf0] font-bold">Ready?</span></h1>
+        <h1 class="text-xl mb-10 font-light">Final authorization chahiye. <br><span class="text-[#ff6bf0] font-bold">Taiyaar ho?</span></h1>
         <div class="flex gap-6 justify-center">
-            <button onclick="showPage(7)" class="btn-main">YES</button>
-            <button onmouseover="moveBtn(this)" class="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-xs">NO</button>
+            <button onclick="showPage(7)" class="btn-main">HAAN</button>
+            <button onmouseover="moveBtn(this)" class="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-xs">NAHI</button>
         </div>
     </div>
 </div>
 
-
+<!-- P7: Garden -->
 <div class="page" id="p7">
     <div class="glass-card p-6 text-center pointer-events-none mb-10 border-[#ff6bf0]/20">
-        <h1 class="text-xs tracking-[4px] uppercase text-white/60 mb-2">The Garden of Yunna</h1>
-        <p id="fcount" class="text-[#ff6bf0] text-lg font-bold">Click to grow: 0 / 10</p>
+        <h1 class="text-xs tracking-[4px] uppercase text-white/60 mb-2">Yunna Ka Garden</h1>
+        <p id="fcount" class="text-[#ff6bf0] text-lg font-bold"> Plant flowers: 0 / 10</p>
     </div>
     <div class="flex gap-4 pointer-events-auto">
         <button class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] tracking-widest uppercase hover:bg-[#ff6bf0] hover:text-black transition" onclick="clearGarden()">Reset</button>
@@ -206,25 +290,25 @@
     </div>
 </div>
 
-
+<!-- P8: Birthday Message -->
 <div class="page" id="p8">
     <div class="text-center">
         <h1 class="font-['Dancing_Script'] text-7xl text-[#ff6bf0] mb-8 drop-shadow-[0_0_20px_#ff6bf066]">Happy Birthday Yunna!</h1>
         <div class="glass-card p-10 max-w-sm mx-auto mb-8">
-            <p class="italic text-lg text-white/80">"Life is better with a Pagal like you. Keep glowing always."</p>
+            <p class="italic text-lg text-white/80">"Life tere jaise pagal ke bina boring hoti. Chamakti reh hamesha!"</p>
             <div class="mt-8 flex justify-center gap-3">
                 <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase font-bold text-[#ff6bf0]">👑 Roasting Queen</span>
-                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase font-bold text-[#ff6bf0]">🤡 Certified</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase font-bold text-[#ff6bf0]">🤡 Certified </span>
             </div>
         </div>
-        <button onclick="showPage(9)" class="btn-main uppercase text-[10px]">Collect Birthday Gift 🎁</button>
+        <button onclick="showPage(9)" class="btn-main uppercase text-[10px]">Birthday Gift Lele 🎁</button>
     </div>
 </div>
 
-
+<!-- P9: Gift -->
 <div class="page" id="p9">
     <div class="text-center">
-        <h1 class="text-[#ff6bf0] text-xs tracking-[5px] uppercase mb-12">One Last Thing...</h1>
+        <h1 class="text-[#ff6bf0] text-xs tracking-[5px] uppercase mb-12">Ek Aakhri Cheez...</h1>
         <div class="relative">
             <div id="gift-box" class="gift-box" onclick="this.classList.toggle('open')">
                 <div class="gift-lid"></div>
@@ -232,14 +316,13 @@
             </div>
             <div class="gift-reward">SOJA 😌</div>
         </div>
-        <p class="mt-20 text-white/40 text-[10px] uppercase tracking-widest">You are the real gift. <br> Have a great year ahead!</p>
+        <p class="mt-20 text-white/40 text-[10px] uppercase tracking-widest">Asli gift toh tu khud hai. <br> Agla saal tere liye best ho!</p>
     </div>
 </div>
 
-<div class="footer">MADE FOR YUNNA 🌸 ✨ <span>|</span> DEV - MURPHX</div>
+<div class="footer">MADE FOR YUNNA 🌸  <span>|</span> DEV - MURPHX</div>
 
 <script>
-    
     let currentMemIndex = 0;
     const memoryViewport = document.getElementById('memory-viewport');
     let isDown = false;
@@ -261,11 +344,13 @@
         memoryViewport.scrollLeft = scrollLeft - walk;
     });
 
-    
     memoryViewport.addEventListener('scroll', () => {
+        updateMemoryItems();
+    });
+
+    function updateMemoryItems() {
         const width = memoryViewport.offsetWidth;
         const newIndex = Math.round(memoryViewport.scrollLeft / width);
-        
         if (newIndex !== currentMemIndex) {
             currentMemIndex = newIndex;
             const items = document.querySelectorAll('.memory-item');
@@ -276,9 +361,23 @@
                 }
             });
         }
-    });
+    }
 
-    
+    function nextMem() {
+        const items = document.querySelectorAll('.memory-item');
+        if (currentMemIndex < items.length - 1) {
+            currentMemIndex++;
+            memoryViewport.scrollTo({ left: currentMemIndex * memoryViewport.offsetWidth, behavior: 'smooth' });
+        }
+    }
+
+    function prevMem() {
+        if (currentMemIndex > 0) {
+            currentMemIndex--;
+            memoryViewport.scrollTo({ left: currentMemIndex * memoryViewport.offsetWidth, behavior: 'smooth' });
+        }
+    }
+
     const playlist = [
         { title: 'Wanna be yours', src: 'music1.mp3', img: 'https://i.pinimg.com/736x/2f/28/74/2f2874cb89259481d7d5c5fe672b6990.jpg' },
         { title: 'Perfect', src: 'music2.mp3', img: 'https://i.pinimg.com/736x/73/9a/60/739a60127406accf961998335e3d7502.jpg' },
@@ -287,10 +386,7 @@
     const audio = document.getElementById('audio-player');
     const musicWrapper = document.getElementById('music-wrapper');
 
-  
-    audio.onended = () => {
-        nextSong();
-    };
+    audio.onended = () => { nextSong(); };
 
     function initMusic() {
         musicWrapper.innerHTML = playlist.map((song, i) => `
@@ -347,7 +443,6 @@
         showPage(2);
     }
 
-   
     const canvas = document.getElementById('garden');
     const ctx = canvas.getContext('2d', { alpha: false });
     let flowers = [], particles = [], isAuto = false, autoInterval, time = 0, flowerCount = 0;
@@ -412,22 +507,46 @@
             activePage.classList.remove('active');
             nextPage.classList.add('active');
             gsap.fromTo(nextPage, { opacity: 0, scale: 1.1 }, { opacity: 1, scale: 1, duration: 0.7 });
-            if(n === 2) autoBiometric();
-            if(n === 4) startScan();
-            canvas.style.pointerEvents = (n === 7) ? 'all' : 'none';
+            if(n == 2) autoBiometric();
+            if(n == 4) startScan();
+            if(n == '51') startAIAnalysis();
+            if(n == '52') startChat();
+            if(n == '53') startDream();
+            if(n == '55') startGlitch();
+            canvas.style.pointerEvents = (n == 7) ? 'all' : 'none';
         }});
+    }
+
+    function startAIAnalysis() {
+        const tl = gsap.timeline();
+        tl.to("#ai-line-1", { opacity: 1, x: 10, duration: 0.5, delay: 0.5 })
+          .to("#ai-line-2", { opacity: 1, x: 10, duration: 0.5 })
+          .to("#ai-line-3", { opacity: 1, x: 10, duration: 0.5 })
+          .to("#ai-line-4", { opacity: 1, scale: 1.2, duration: 0.5, ease: "back.out" });
+    }
+
+    function startChat() {
+        gsap.to(".chat-bubble", { opacity: 1, y: 0, duration: 0.5, stagger: 1 });
+    }
+
+    function startDream() {
+        gsap.to(".dream-item", { opacity: 1, y: 0, duration: 1, stagger: 0.3, ease: "elastic.out(1, 0.3)" });
+    }
+
+    function startGlitch() {
+        gsap.to("#glitch-progress", { width: "100%", duration: 2, ease: "none", onComplete: () => showPage(6) });
     }
 
     function autoBiometric() {
         gsap.to("#scan-icon", { scale: 1.3, duration: 0.4, repeat: 7, yoyo: true, ease: "power1.inOut" });
-        setTimeout(() => { document.getElementById('scan-text').innerText = "VERIFYING BIOMETRICS..."; gsap.to("#scan-feedback", { opacity: 1, duration: 0.5 }); }, 2000);
+        setTimeout(() => { document.getElementById('scan-text').innerText = "BIOMETRICS CHECK HO RAHA HAI..."; gsap.to("#scan-feedback", { opacity: 1, duration: 0.5 }); }, 2000);
         setTimeout(() => showPage(3), 4000);
     }
 
     function startScan() {
         gsap.to("#bar", { width: "100%", duration: 5, ease: "power1.inOut", onUpdate: function() {
             const progress = Math.round(this.progress() * 100);
-            const statusMsg = progress < 35 ? "Compiling vibes..." : progress < 75 ? "Injecting happiness..." : "Finalizing assets...";
+            const statusMsg = progress < 35 ? "Vibes load ho rahi hain..." : progress < 75 ? "Happiness bhar rahe hain..." : "Bas ho gaya...";
             document.getElementById('status').innerText = `${statusMsg} ${progress}%`;
         }, onComplete: () => showPage(5) });
     }
@@ -442,12 +561,12 @@
         if (currentPage && currentPage.id === 'p7') {
             flowers.push(new Flower(e.clientX, e.clientY));
             flowerCount++;
-            document.getElementById('fcount').innerText = `Click to grow: ${flowerCount} / 10`;
-            if(flowerCount === 10) setTimeout(() => showPage(8), 4000);
+            document.getElementById('fcount').innerText = `Phool ugaao: ${flowerCount} / 10`;
+            if(flowerCount === 10) setTimeout(() => showPage(8), 2000);
         }
     });
 
-    function clearGarden() { flowers = []; flowerCount = 0; document.getElementById('fcount').innerText = "Click to grow: 0 / 10"; }
+    function clearGarden() { flowers = []; flowerCount = 0; document.getElementById('fcount').innerText = "Phool ugaao: 0 / 10"; }
     
     function toggleAuto() {
         isAuto = !isAuto;
@@ -457,8 +576,8 @@
             autoInterval = setInterval(() => {
                 flowers.push(new Flower(Math.random() * canvas.width, Math.random() * canvas.height * 0.7 + 100));
                 flowerCount++;
-                document.getElementById('fcount').innerText = `Click to grow: ${flowerCount} / 10`;
-                if(flowerCount >= 10) { clearInterval(autoInterval); setTimeout(() => showPage(8), 4000); }
+                document.getElementById('fcount').innerText = `Phool ugaao: ${flowerCount} / 10`;
+                if(flowerCount >= 10) { clearInterval(autoInterval); setTimeout(() => showPage(8), 2000); }
             }, 800);
         } else {
             btn.style.background = "rgba(255,255,255,0.05)"; btn.style.color = "white";
