@@ -560,12 +560,12 @@
         if (currentPage && currentPage.id === 'p7') {
             flowers.push(new Flower(e.clientX, e.clientY));
             flowerCount++;
-            document.getElementById('fcount').innerText = `Phool ugaao: ${flowerCount} / 10`;
+            document.getElementById('fcount').innerText = `Plant flowers: ${flowerCount} / 15`;
             if(flowerCount === 10) setTimeout(() => showPage(8), 2000);
         }
     });
 
-    function clearGarden() { flowers = []; flowerCount = 0; document.getElementById('fcount').innerText = "Phool ugaao: 0 / 10"; }
+    function clearGarden() { flowers = []; flowerCount = 0; document.getElementById('fcount').innerText = "Plant flowers: 0 / 15"; }
     
     function toggleAuto() {
         isAuto = !isAuto;
